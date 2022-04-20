@@ -19,7 +19,16 @@ add_definitions(${PCL_DEFINITIONS})
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
 
-add_executable (lidar_obstacle_detector src/sensors/lidar.h src/render/box.h src/render/render.h src/render/render.cpp src/environment.cpp src/render/render.cpp src/processPointClouds.cpp)
+add_executable (lidar_obstacle_detector 
+		src/sensors/lidar.h 
+		src/render/box.h 
+		src/render/render.h 
+		src/render/render.cpp
+		src/kdtree.h
+		src/point_cloud_processor.h 
+		src/point_cloud_processor.hpp 
+		src/environment.cpp )
+
 target_link_libraries (lidar_obstacle_detector ${PCL_LIBRARIES})
 
 

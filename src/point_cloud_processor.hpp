@@ -1,31 +1,40 @@
 // PCL lib Functions for processing point clouds 
 
-#include "processPointClouds.h"
+#include <pcl/common/common.h>
+#include <pcl/search/kdtree.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/io/pcd_io.h>
+
+//#include "point_cloud_processor.h"
 
 #include <unordered_set>
-#include <pcl/filters/random_sample.h>
+
+//#include <pcl/filters/random_sample.h>
 
 //#include <pcl/types.h>
 
 //constructor:
+//template<typename PointT>
+//PointCloudProcessor<PointT>::PointCloudProcessor() {}
+//
+//
+////de-constructor:
+//template<typename PointT>
+//PointCloudProcessor<PointT>::~PointCloudProcessor() {}
+
+
+//template<typename PointT>
+//void PointCloudProcessor<PointT>::numPoints(typename pcl::PointCloud<PointT>::Ptr cloud)
+//{
+//    std::cout << cloud->points.size() << std::endl;
+//}
+
+
 template<typename PointT>
-ProcessPointClouds<PointT>::ProcessPointClouds() {}
-
-
-//de-constructor:
-template<typename PointT>
-ProcessPointClouds<PointT>::~ProcessPointClouds() {}
-
-
-template<typename PointT>
-void ProcessPointClouds<PointT>::numPoints(typename pcl::PointCloud<PointT>::Ptr cloud)
-{
-    std::cout << cloud->points.size() << std::endl;
-}
-
-
-template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(const typename pcl::PointCloud<PointT>::Ptr &cloud, 
+typename pcl::PointCloud<PointT>::Ptr PointCloudProcessor<PointT>::FilterCloud(const typename pcl::PointCloud<PointT>::Ptr &cloud, 
                                                                             float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint)
 {
 
@@ -70,7 +79,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
 
 
 //template<typename PointT>
-//std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
+//std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> PointCloudProcessor<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
 //{
 //    // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
 //
@@ -91,8 +100,8 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
 
 
 template<typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlane(
-    typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold)
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> PointCloudProcessor<PointT>::segmentPlane(
+    const typename pcl::PointCloud<PointT>::Ptr & cloud, int maxIterations, float distanceThreshold)
 {
     
     // A helper function for sampling n random points from the cloud
@@ -191,11 +200,11 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     }
 
     return std::make_pair(std::move(obstacleCloud), std::move(roadCloud));
-}   // SegmentPlane
+}   // segmentPlane
 
 
 template<typename PointT>
-std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
+std::vector<typename pcl::PointCloud<PointT>::Ptr> PointCloudProcessor<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
 
     // Time clustering process
@@ -239,7 +248,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
 
 template<typename PointT>
-Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Ptr cluster)
+Box PointCloudProcessor<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Ptr cluster)
 {
 
     // Find bounding box for one of the clusters
@@ -259,7 +268,7 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
 
 
 template<typename PointT>
-void ProcessPointClouds<PointT>::savePcd(typename pcl::PointCloud<PointT>::Ptr cloud, std::string file)
+void PointCloudProcessor<PointT>::savePcd(typename pcl::PointCloud<PointT>::Ptr cloud, std::string file)
 {
     pcl::io::savePCDFileASCII (file, *cloud);
     std::cerr << "Saved " << cloud->points.size () << " data points to "+file << std::endl;
@@ -267,7 +276,7 @@ void ProcessPointClouds<PointT>::savePcd(typename pcl::PointCloud<PointT>::Ptr c
 
 
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::loadPcd(std::string file)
+typename pcl::PointCloud<PointT>::Ptr PointCloudProcessor<PointT>::loadPcd(std::string file)
 {
 
     typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
@@ -283,7 +292,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::loadPcd(std::s
 
 
 template<typename PointT>
-std::vector<boost::filesystem::path> ProcessPointClouds<PointT>::streamPcd(std::string dataPath)
+std::vector<boost::filesystem::path> PointCloudProcessor<PointT>::streamPcd(std::string dataPath)
 {
 
     std::vector<boost::filesystem::path> paths(boost::filesystem::directory_iterator{dataPath}, boost::filesystem::directory_iterator{});

@@ -4,9 +4,9 @@
 
 #include "sensors/lidar.h"
 #include "render/render.h"
-#include "processPointClouds.h"
+#include "point_cloud_processor.h"
 // using templates for processPointClouds so also include .cpp to help linker
-#include "processPointClouds.cpp"
+//#include "processPointClouds.cpp"
 
 #include <boost/format.hpp> // my
 
@@ -57,9 +57,9 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     //renderPointCloud(viewer, pointCloud, "some name", Color(0, 1.0, 0.5));
 
     // Create point processor
-    ProcessPointClouds<pcl::PointXYZ> pointProcessor;
+    PointCloudProcessor<pcl::PointXYZ> pointProcessor;
     pcl::PointCloud<pcl::PointXYZ>::Ptr obstacleCloud, roadCloud;
-    std::tie(obstacleCloud, roadCloud) = pointProcessor.SegmentPlane(pointCloud, 100, 0.2);
+    std::tie(obstacleCloud, roadCloud) = pointProcessor.segmentPlane(pointCloud, 100, 0.2);
     //std::tie(obstacleCloud, roadCloud) = pointProcessor.SegmentPlane_Custom(pointCloud, 50, 0.2);
 
     //renderPointCloud(viewer, obstacleCloud, "obstacleCloud", Color(1, 0, 0));
@@ -71,8 +71,8 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     {
         pcl::PointCloud<pcl::PointXYZ>::Ptr cluster = clusters[i];
 
-        std::cout << "cluster size "; 
-        pointProcessor.numPoints(cluster);
+        std::cout << "cluster size " << cluster->size() << std::endl; 
+        //pointProcessor.numPoints(cluster);
         
         const Color& color = colors[i % colors.size()];
         renderPointCloud(viewer, cluster, boost::str(boost::format("cluster_%d") % i), color);
@@ -83,7 +83,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 }   // simpleHighway
 
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, 
-    const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, ProcessPointClouds<pcl::PointXYZI> &pointProcessor)
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, PointCloudProcessor<pcl::PointXYZI> &pointProcessor)
 {
         
     pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud = pointProcessor.FilterCloud(cloud, 0.2, 
@@ -93,7 +93,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer,
     //renderPointCloud(viewer, filteredCloud, "inputCloud");
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacleCloud(new pcl::PointCloud<pcl::PointXYZI>), roadCloud(new pcl::PointCloud<pcl::PointXYZI>);
-    std::tie(obstacleCloud, roadCloud) = pointProcessor.SegmentPlane(filteredCloud, 30, 0.2);
+    std::tie(obstacleCloud, roadCloud) = pointProcessor.segmentPlane(filteredCloud, 30, 0.2);
 
     renderPointCloud(viewer, roadCloud, "road", Color(0,1,0));
     //renderPointCloud(viewer, obstacleCloud, "obst", Color(1, 0, 0));
@@ -144,7 +144,7 @@ int main (int argc, char** argv)
     //simpleHighway(viewer);
     //cityBlock(viewer);
 
-    ProcessPointClouds<pcl::PointXYZI> pointProcessor;
+    PointCloudProcessor<pcl::PointXYZI> pointProcessor;
     //std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../src/sensors/data/pcd/data_1");
     std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../data/pcd/data_1");
     std::vector<boost::filesystem::path>::const_iterator it = paths.cbegin();
