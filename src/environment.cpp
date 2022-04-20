@@ -50,13 +50,13 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     bool renderScene = false;
     std::vector<Car> cars = initHighway(renderScene, viewer);
     
-    // TODO:: Create lidar sensor 
+    // Create lidar sensor 
     std::unique_ptr<Lidar> lidar(new Lidar(std::move(cars), 0));
     pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = lidar->scan();
     //renderRays(viewer, lidar->position, pointCloud);
     //renderPointCloud(viewer, pointCloud, "some name", Color(0, 1.0, 0.5));
 
-    // TODO:: Create point processor
+    // Create point processor
     ProcessPointClouds<pcl::PointXYZ> pointProcessor;
     pcl::PointCloud<pcl::PointXYZ>::Ptr obstacleCloud, roadCloud;
     std::tie(obstacleCloud, roadCloud) = pointProcessor.SegmentPlane(pointCloud, 100, 0.2);
@@ -67,8 +67,6 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clusters = pointProcessor.Clustering(obstacleCloud, 1, 3, 30);
     std::vector<Color> colors = { Color(1,0,0), Color(0,1,0), Color(0,1,1) };
-    //unsigned int clusterId = 1;
-    //for (const pcl::PointCloud<pcl::PointXYZ>::Ptr& cluster : clusters)
     for (std::size_t i = 0; i < clusters.size(); ++i)
     {
         pcl::PointCloud<pcl::PointXYZ>::Ptr cluster = clusters[i];
@@ -147,7 +145,8 @@ int main (int argc, char** argv)
     //cityBlock(viewer);
 
     ProcessPointClouds<pcl::PointXYZI> pointProcessor;
-    std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../src/sensors/data/pcd/data_1");
+    //std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../src/sensors/data/pcd/data_1");
+    std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../data/pcd/data_1");
     std::vector<boost::filesystem::path>::const_iterator it = paths.cbegin();
 
     while (!viewer->wasStopped ())
