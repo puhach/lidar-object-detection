@@ -25,6 +25,8 @@ add_executable (lidar_obstacle_detector
 		src/render/render.h 
 		src/render/render.cpp
 		src/kdtree.h
+		src/euclidean_clusterer.h
+		src/euclidean_clusterer.hpp
 		src/point_cloud_processor.h 
 		src/point_cloud_processor.hpp 
 		src/environment.cpp )
