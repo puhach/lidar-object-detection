@@ -33,28 +33,27 @@ private:
 		// PCL points seem to satisfy this requirement
 		static_assert(std::is_array<decltype(PointT::data)>::value, "The point type must contain the data array.");
 
-		PointTreeItem(const PointT& point) : point(point) {}
-		PointTreeItem(PointT&& point) : point(std::move(point)) {}
+		PointTreeItem(std::size_t index, const PointT& point) : index(index), point(point) {}
+		PointTreeItem(std::size_t index, PointT&& point) : index(index), point(std::move(point)) {}
 		
-		//template <typename T, std::size_t N>
-		//static constexpr std::size_t arrayLength(const T(&arr)[N]) noexcept { return N; }
-
-		static constexpr std::size_t dim() noexcept { return sizeof(PointT::data)>0 ? sizeof(PointT::data)/sizeof(PointT::data[0]) : 0; }
+		//static constexpr std::size_t dim() noexcept { return sizeof(PointT::data) > 0 ? sizeof(PointT::data) / sizeof(PointT::data[0]) : 0; }
+		static constexpr std::size_t dim() noexcept { return std::extent<decltype(PointT::data)>::value; }
 
 		decltype(auto) operator [] (const std::size_t index) const { return point.data[index]; }
 
+		std::size_t index;
 		PointT point;
 	};	// PointTreeItem
 
-	bool expandCluster(std::size_t pointIndex);
-
+	//bool expandCluster(std::size_t pointIndex);
+	bool expandCluster(const PointTreeItem &item);
 
 	float distanceTolerance = 0;
 	std::size_t minClusterSize = 0;
 	std::size_t maxClusterSize = 0;
 	typename pcl::PointCloud<PointT>::ConstPtr cloud;
 	//KdTree<PointT> tree;
-	KdTree<PointT, PointTreeItem> tree;
+	KdTree<PointTreeItem> tree;
 	std::vector<ClusterIndex> clusterAffinity;
 	std::size_t numClusters;
 };	// EuclideanClusterer

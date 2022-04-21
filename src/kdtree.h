@@ -6,10 +6,12 @@
 template <typename T>
 struct Node
 {
-	Node(std::size_t index, const T& data) : index(index), data(data) {}
-	Node(std::size_t index, T&& data) : index(index), data(std::move(data)) {}
-	
-	std::size_t index;
+	//Node(std::size_t index, const T& data) : index(index), data(data) {}
+	//Node(std::size_t index, T&& data) : index(index), data(std::move(data)) {}
+	Node(const T& data) : data(data) {}
+	Node(T&& data) : data(std::move(data)) {}
+
+	//std::size_t index;
 	T data;
 	std::unique_ptr<Node> left, right;
 };	// Node
@@ -41,36 +43,41 @@ struct XYZAdaptor
 */
 
 //template <typename Data, typename Item = XYZAdaptor<Data>>
-template <typename Data, typename Item = Data>
-//template <typename Item>
+//template <typename Data, typename Item = Data>
+template <typename Item>
 class KdTree
 {
 public:
-	void insert(std::size_t index, const Data& data) { insertHelper(this->root, index, Item{data}, 0); }
+	void insert(const Item& data) { insertHelper(this->root, data, 0); }
 
-	void insert(std::size_t index, Data&& data) { insertHelper(this->root, index, Item{std::move(data)}, 0); }
+	void insert(Item&& data) { insertHelper(this->root, std::move(data), 0); }
 
 	template <typename Distance>
-	std::vector<std::size_t> search(const Data& data, Distance distanceTolerance) const;
+	std::vector<Item> search(const Item& data, Distance distanceTolerance) const;
+	//std::vector<std::size_t> search(const Item& data, Distance distanceTolerance) const;
 
 	void clear() { root.reset(); }
 
 private:
 
-	void insertHelper(std::unique_ptr<Node<Item>>& parent, std::size_t index, Item&& data, std::size_t depth);
+	template <typename ItemT>
+	//void insertHelper(std::unique_ptr<Node<Item>>& parent, Item&& data, std::size_t depth);
+	void insertHelper(std::unique_ptr<Node<Item>>& parent, ItemT&& data, std::size_t depth);
+
 
 	template <typename Distance>
 	//void searchHelper(const std::unique_ptr<Node<Item>> &parent, const Item& target, Distance distanceTolerance, std::size_t depth,
 	void searchHelper(const Node<Item> *parent, const Item &target, Distance distanceTolerance, std::size_t depth, 
-		std::vector<std::size_t> &neighborIndices) const;
+		std::vector<Item> &neighbors) const;
 
 	std::unique_ptr<Node<Item>> root;
 };	// KdTree
 
 
 // TODO: consider using perfrect forwarding
-template<typename Data, typename Item>
-inline void KdTree<Data, Item>::insertHelper(std::unique_ptr<Node<Item>>& parent, std::size_t index, Item&& data, std::size_t depth)
+template <typename Item>
+template <typename ItemT>
+inline void KdTree<Item>::insertHelper(std::unique_ptr<Node<Item>>& parent, ItemT&& data, std::size_t depth)
 {
 	if (parent)
 	{
@@ -79,33 +86,34 @@ inline void KdTree<Data, Item>::insertHelper(std::unique_ptr<Node<Item>>& parent
 		decltype(auto) parentCoord = parent->data[axis];
 
 		if (newCoord < parentCoord)
-			insertHelper(parent->left, index, std::move(data), depth + 1);
+			insertHelper(parent->left, std::move(data), depth + 1);
 		else
-			insertHelper(parent->right, index, std::move(data), depth + 1);
+			insertHelper(parent->right, std::move(data), depth + 1);
 	}
 	else
 	{
-		parent = std::make_unique<Node<Item>>(index, data);
+		parent = std::make_unique<Node<Item>>(std::forward<ItemT>(data));
 	}
 }	// insertHelper
 
 
 
-template <typename Data, typename Item>
+template <typename Item>
 template <typename Distance>
-std::vector<std::size_t> KdTree<Data, Item>::search(const Data& target, Distance distanceTolerance) const
+std::vector<Item> KdTree<Item>::search(const Item& target, Distance distanceTolerance) const
+//std::vector<std::size_t> KdTree<Item>::search(const Item& target, Distance distanceTolerance) const
 {
-	std::vector<std::size_t> neighborIndices;
-	searchHelper(this->root.get(), target, distanceTolerance, 0, neighborIndices);
+	std::vector<Item> neighbors;
+	searchHelper(this->root.get(), target, distanceTolerance, 0, neighbors);
 	//searchHelper(this->root, target, distanceTolerance, 0, neighborIndices);
-	return neighborIndices;
+	return neighbors;
 }	// search
 
-template<typename Data, typename Item>
+template<typename Item>
 template<typename Distance>
-void KdTree<Data, Item>::searchHelper(const Node<Item>* parent, const Item& target, Distance distanceTolerance, std::size_t depth,
+void KdTree<Item>::searchHelper(const Node<Item>* parent, const Item& target, Distance distanceTolerance, std::size_t depth,
 //void KdTree<Data, Item>::searchHelper(const std::unique_ptr<Node<Item>> &parent, const Item& target, Distance distanceTolerance, std::size_t depth,
-	std::vector<std::size_t>& neighborIndices) const
+	std::vector<Item>& neighbors) const
 {
 	if (!parent)
 		return;
@@ -118,7 +126,8 @@ void KdTree<Data, Item>::searchHelper(const Node<Item>* parent, const Item& targ
 	}
 
 	if (dist2 <= distanceTolerance * distanceTolerance)
-		neighborIndices.push_back(parent->index);
+		neighbors.push_back(parent->data);
+		//neighborIndices.push_back(parent->index);
 
 	auto axis = depth % target.dim();
 	decltype(auto) targetCoord = target[axis];
@@ -126,11 +135,11 @@ void KdTree<Data, Item>::searchHelper(const Node<Item>* parent, const Item& targ
 
 	// Children with a smaller coord may be inside the box
 	if (parentCoord > targetCoord - distanceTolerance)
-		searchHelper(parent->left.get(), target, distanceTolerance, depth + 1, neighborIndices);
+		searchHelper(parent->left.get(), target, distanceTolerance, depth + 1, neighbors);
 	
 	// Children with a greater or equal coord may be inside the box
 	if (parentCoord <= targetCoord + distanceTolerance)
-		searchHelper(parent->right.get(), target, distanceTolerance, depth + 1, neighborIndices);
+		searchHelper(parent->right.get(), target, distanceTolerance, depth + 1, neighbors);
 
 	/*std::array<Distance, Item::dim()> d;
 	for (std::size_t i = 0; i < d.size(); ++i)

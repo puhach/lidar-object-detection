@@ -1,21 +1,23 @@
 
 template <typename PointT>
-bool EuclideanClusterer<PointT>::expandCluster(std::size_t pointIndex)
+//bool EuclideanClusterer<PointT>::expandCluster(std::size_t pointIndex)
+bool EuclideanClusterer<PointT>::expandCluster(const PointTreeItem &item)
 {
-    auto clusterIndex = this->clusterAffinity[pointIndex];
+    auto clusterIndex = this->clusterAffinity[item.index];
     if (clusterIndex >= 0)
         return false;     // already in a cluster
 
-    this->clusterAffinity[pointIndex] = numClusters;
+    this->clusterAffinity[item.index] = numClusters;
 
-    const auto &neighborIndices = this->tree.search(this->cloud->at(pointIndex), this->distanceTolerance);
-    
-    for (auto neighborIndex : neighborIndices)
+    //const auto& neighborIndices = this->tree.search(this->cloud->at(pointIndex), this->distanceTolerance);
+    const auto& neighbors = this->tree.search(item, this->distanceTolerance);
+
+    for (const auto &neighbor : neighbors)
     {
-        expandCluster(neighborIndex);
+        expandCluster(neighbor);
     }
 
-    return !neighborIndices.empty();
+    return !neighbors.empty();
 }   // expandCluster
 
 template <typename PointT>
@@ -30,7 +32,8 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
     //for (const auto& p : *cloud)
     for (std::size_t i = 0; i < cloud->size(); ++i)
     {
-        this->tree.insert(i, cloud->at(i));
+        //this->tree.insert(i, cloud->at(i));
+        this->tree.insert(EuclideanClusterer<PointT>::PointTreeItem{ i, cloud->at(i) });
     }
 
     //std::size_t numClusters = 0;
@@ -40,7 +43,10 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
 
     for (std::size_t i = 0; i < cloud->size(); ++i)
     {
-        if (expandCluster(i))
+        EuclideanClusterer<PointT>::PointTreeItem item{ i, this->cloud->at(i) };
+
+        //if (expandCluster(i))
+        if (expandCluster(item))
             ++this->numClusters;
 
     }   // for i
