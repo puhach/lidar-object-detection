@@ -15,6 +15,7 @@ struct Node
 };	// Node
 
 
+/*
 // The default data adaptor for making arbitrary data structures with X, Y, Z fields indexable
 template <typename T>
 struct XYZAdaptor
@@ -37,10 +38,11 @@ struct XYZAdaptor
 
 	T data;
 };	// XYZAdaptor
+*/
 
-
-template <typename Data, typename Item = XYZAdaptor<Data>>
-//template <typename Data, typename Item = Data>
+//template <typename Data, typename Item = XYZAdaptor<Data>>
+template <typename Data, typename Item = Data>
+//template <typename Item>
 class KdTree
 {
 public:
@@ -61,59 +63,6 @@ private:
 	//void searchHelper(const std::unique_ptr<Node<Item>> &parent, const Item& target, Distance distanceTolerance, std::size_t depth,
 	void searchHelper(const Node<Item> *parent, const Item &target, Distance distanceTolerance, std::size_t depth, 
 		std::vector<std::size_t> &neighborIndices) const;
-
-	/*
-	// My helper
-	void insertHelper(Node*& parent, std::vector<float>&& point, int id, int depth)
-	{
-		
-	}	// insertHelper
-
-	void insert(std::vector<float> point, int id)
-	{
-		// TODO: Fill in this function to insert a new point into the tree
-		// the function should create a new node and place correctly with in the root 
-
-		insertHelper(this->root, std::move(point), id, 0);
-	}
-
-
-	void searchHelper(const Node* node, const std::vector<float>& target, float distanceTol, int depth, std::vector<int>& ids)
-	{
-		if (!node)
-			return;
-
-		float d[] = { target[0] - node->point[0], target[1] - node->point[1] };
-
-		if (d[0] * d[0] + d[1] * d[1] <= distanceTol * distanceTol)	// inside the sphere
-			ids.push_back(node->id);
-		
-		int dim = depth % target.size();
-		int targetCoord = target[dim];
-		int nodeCoord = node->point[dim];
-
-		// Children with a smaller coord may be inside the box
-		// nodeCoord > targetCoord - distanceTol => distanceTol > targetCoord - nodeCoord =>
-		// distanceTol > d[dim] => d[dim] < distanceTol
-		if (d[dim] < distanceTol)	
-			searchHelper(node->left, target, distanceTol, depth + 1, ids);
-
-		// Children with a greater or equal coord may be inside the box
-		// nodeCoord <= targetCoord + distanceTol => nodeCoord - targetCoord <= distanceTol =>
-		// targetCoord - nodeCoord >= -distanceTol => d[dim] >= -distanceTol
-		if (d[dim] >= -distanceTol)	
-			searchHelper(node->right, target, distanceTol, depth + 1, ids);
-
-	}	// searchHelper
-
-	// return a list of point ids in the tree that are within distance of target
-	std::vector<int> search(std::vector<float> target, float distanceTol)
-	{
-		std::vector<int> ids;
-		searchHelper(this->root, target, distanceTol, 0, ids);
-		return ids;
-	}
-	*/
 
 	std::unique_ptr<Node<Item>> root;
 };	// KdTree

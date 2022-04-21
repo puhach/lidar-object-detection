@@ -56,6 +56,9 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     //renderRays(viewer, lidar->position, pointCloud);
     //renderPointCloud(viewer, pointCloud, "some name", Color(0, 1.0, 0.5));
 
+    // TODO: check whether the size is correctly obtained for XYZI and other point types
+    //constexpr std::size_t sz = sizeof(pcl::PointXYZ::data) / sizeof(pcl::PointXYZ::data[0]);
+
     // Create point processor
     PointCloudProcessor<pcl::PointXYZ> pointProcessor;
     pcl::PointCloud<pcl::PointXYZ>::Ptr obstacleCloud, roadCloud;
