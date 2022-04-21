@@ -33,16 +33,19 @@ private:
 		// PCL points seem to satisfy this requirement
 		static_assert(std::is_array<decltype(PointT::data)>::value, "The point type must contain the data array.");
 
-		PointTreeItem(std::size_t index, const PointT& point) : index(index), point(point) {}
-		PointTreeItem(std::size_t index, PointT&& point) : index(index), point(std::move(point)) {}
+		PointTreeItem(std::size_t index, const PointT& point) : index(index), point(std::cref(point)) {}
+
+		//PointTreeItem(std::size_t index, const PointT& point) : index(index), point(point) {}
+		//PointTreeItem(std::size_t index, PointT&& point) : index(index), point(std::move(point)) {}
 		
 		//static constexpr std::size_t dim() noexcept { return sizeof(PointT::data) > 0 ? sizeof(PointT::data) / sizeof(PointT::data[0]) : 0; }
 		static constexpr std::size_t dim() noexcept { return std::extent<decltype(PointT::data)>::value; }
 
-		decltype(auto) operator [] (const std::size_t index) const { return point.data[index]; }
+		decltype(auto) operator [] (const std::size_t index) const { return point.get().data[index]; }
 
 		std::size_t index;
-		PointT point;
+		//PointT point;
+		std::reference_wrapper<const PointT> point;
 	};	// PointTreeItem
 
 	//bool expandCluster(std::size_t pointIndex);
