@@ -44,11 +44,11 @@ public:
 
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(const typename pcl::PointCloud<PointT>::Ptr & cloud,
  
-        float clusterTolerance, int minSize, int maxSize);
+        float distanceTolerance, int minSize, int maxSize);
 
 
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterizePCL(typename pcl::PointCloud<PointT>::Ptr cloud,
-        float clusterTolerance, int minSize, int maxSize);
+        float distanceTolerance, int minSize, int maxSize);
 
 
     Box BoundingBox(typename pcl::PointCloud<PointT>::Ptr cluster);

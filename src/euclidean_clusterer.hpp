@@ -8,7 +8,7 @@ bool EuclideanClusterer<PointT>::expandCluster(std::size_t pointIndex)
 
     this->clusterAffinity[pointIndex] = numClusters;
 
-    const auto &neighborIndices = this->points.search(this->cloud[pointIndex], this->distanceTolerance);
+    const auto &neighborIndices = this->tree.search(this->cloud->at(pointIndex), this->distanceTolerance);
     
     for (auto neighborIndex : neighborIndices)
     {
@@ -25,12 +25,12 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
     this->numClusters = 0;
     this->cloud = std::move(cloud);
     //KdTree<PointT> kdTree;
-    this->points.clear();
+    this->tree.clear();
 
     //for (const auto& p : *cloud)
     for (std::size_t i = 0; i < cloud->size(); ++i)
     {
-        this->points.insert(i, cloud->at(i));
+        this->tree.insert(i, cloud->at(i));
     }
 
     //std::size_t numClusters = 0;
@@ -46,14 +46,16 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
     }   // for i
 
 
-    assert(clusterAffinity.size() == cloud.size());
+    assert(clusterAffinity.size() == cloud->size());
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;    // TODO: use numClusters
-    for (std::size_t i = 0; i < clusterAffinity.size(); ++i)
+    for (std::size_t i = 0; i < this->clusterAffinity.size(); ++i)
     {
-        auto clusterIndex = clusterAffinity[i];
+        auto clusterIndex = this->clusterAffinity[i];
         assert(clusterIndex >= 0);
-        auto& cluster = clusterIndex < clusters.size() ? clusters[clusterIndex] : clusters.emplace_back(new pcl::PointCloud<T>);
-        cluster->push_back(cloud.at(i));
+        //auto& cluster = clusterIndex < clusters.size() ? clusters[clusterIndex] : clusters.emplace_back(new pcl::PointCloud<PointT>);
+        if (clusterIndex >= clusters.size())
+            clusters.emplace_back(new pcl::PointCloud<PointT>);
+        clusters.back()->push_back(cloud->at(i));
     }   // for i
 
     return clusters;

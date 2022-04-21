@@ -11,7 +11,8 @@
 //#include "point_cloud_processor.h"
 
 #include <unordered_set>
-#include "point_cloud_processor.h"
+//#include "point_cloud_processor.h"
+#include "euclidean_clusterer.h"
 
 //#include <pcl/filters/random_sample.h>
 

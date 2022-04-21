@@ -34,7 +34,7 @@ private:
 	std::size_t minClusterSize = 0;
 	std::size_t maxClusterSize = 0;
 	typename pcl::PointCloud<PointT>::ConstPtr cloud;
-	KdTree<PointT> points;
+	KdTree<PointT> tree;
 	std::vector<ClusterIndex> clusterAffinity;
 	std::size_t numClusters;
 };	// EuclideanClusterer
