@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 project(lidar_obstacle_detection)
 
-set(CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 #find_package(PCL 1.11 REQUIRED)
-find_package(PCL 1.12 REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 
 message("PCL includes")
 message(${PCL_INCLUDE_DIRS})
