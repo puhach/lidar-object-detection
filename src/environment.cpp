@@ -58,6 +58,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
     // TODO: check whether the size is correctly obtained for XYZI and other point types
     //constexpr std::size_t sz = sizeof(pcl::PointXYZ::data) / sizeof(pcl::PointXYZ::data[0]);
+    
 
     // Create point processor
     PointCloudProcessor<pcl::PointXYZ> pointProcessor;

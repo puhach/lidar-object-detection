@@ -18,12 +18,12 @@ struct Node
 
 
 /*
-// The default data adaptor for making arbitrary data structures with X, Y, Z fields indexable
+// The default data adapter for making arbitrary data structures with X, Y, Z fields indexable
 template <typename T>
-struct XYZAdaptor
+struct XYZAdapter
 {
-	constexpr XYZAdaptor(const T& data) : data(data) {}
-	constexpr XYZAdaptor(T&& data) : data(std::move(data)) {}
+	constexpr XYZAdapter(const T& data) : data(data) {}
+	constexpr XYZAdapter(T&& data) : data(std::move(data)) {}
 
 	static constexpr std::size_t dim() noexcept { return 3; }
 
@@ -39,10 +39,10 @@ struct XYZAdaptor
 	}	// operator []
 
 	T data;
-};	// XYZAdaptor
+};	// XYZAdapter
 */
 
-//template <typename Data, typename Item = XYZAdaptor<Data>>
+//template <typename Data, typename Item = XYZAdapter<Data>>
 //template <typename Data, typename Item = Data>
 template <typename Item>
 class KdTree
@@ -81,7 +81,7 @@ inline void KdTree<Item>::insertHelper(std::unique_ptr<Node<Item>>& parent, Item
 {
 	if (parent)
 	{
-		auto axis = depth % data.dim();
+		auto axis = depth % data.size();
 		decltype(auto) newCoord = data[axis];
 		decltype(auto) parentCoord = parent->data[axis];
 
@@ -119,7 +119,7 @@ void KdTree<Item>::searchHelper(const Node<Item>* parent, const Item& target, Di
 		return;
 
 	Distance dist2{};	// zero initialize the distance
-	for (std::size_t i = 0; i < target.dim(); ++i)
+	for (std::size_t i = 0; i < target.size(); ++i)
 	{
 		decltype(auto) diff = target[i] - parent->data[i];
 		dist2 += diff * diff;
@@ -129,7 +129,7 @@ void KdTree<Item>::searchHelper(const Node<Item>* parent, const Item& target, Di
 		neighbors.push_back(parent->data);
 		//neighborIndices.push_back(parent->index);
 
-	auto axis = depth % target.dim();
+	auto axis = depth % target.size();
 	decltype(auto) targetCoord = target[axis];
 	decltype(auto) parentCoord = parent->data[axis];
 

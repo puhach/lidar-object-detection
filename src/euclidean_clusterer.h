@@ -5,6 +5,54 @@
 
 #include "kdtree.h"
 
+// TODO: test this adapter
+// A data adapter for indexing 2D data structures with X, Y fields
+template <typename T>
+struct XYAdapter
+{
+	constexpr XYAdapter(std::size_t index, const T& point) : index(index), point(std::cref(point)) {}
+
+	static constexpr std::size_t size() noexcept { return 2; }
+
+	constexpr decltype(auto) operator [](std::size_t index) const
+	{
+		switch (index)
+		{
+		case 0: return point.x;
+		case 1: return point.y;
+		default: throw std::out_of_range("Invalid coordinate index.");
+		}
+	}	// operator []
+
+	std::size_t index;
+	std::reference_wrapper<const T> point;
+};	// XYAdapter
+
+
+// A data adapter for indexing 3D data structures with X, Y, Z fields
+template <typename T>
+struct XYZAdapter
+{
+	// All PCL XYZ points seem to satisfy this requirement
+	static_assert(std::is_array<decltype(T::data)>::value, "The point type must contain the data array.");
+
+	constexpr XYZAdapter(std::size_t index, const T& point) : index(index), point(std::cref(point)) {}
+	//constexpr XYZAdapter(T&& data) : data(std::move(data)) {}
+
+	static constexpr std::size_t size() noexcept { return 3; }
+
+	constexpr decltype(auto) operator [](std::size_t index) const
+	{
+		static_assert(std::extent<decltype(T::data)>::value >= XYZAdapter<T>::size(), "The data array must contain X, Y, Z coordinates.");
+		return point.get().data[index];		
+	}	// operator []
+
+	std::size_t index;
+	std::reference_wrapper<const T> point;
+};	// XYZAdapter
+
+
+
 
 template <typename PointT>
 class EuclideanClusterer
@@ -28,6 +76,7 @@ public:
 
 private:
 
+	/*
 	struct PointTreeItem
 	{
 		// PCL points seem to satisfy this requirement
@@ -47,6 +96,30 @@ private:
 		//PointT point;
 		std::reference_wrapper<const PointT> point;
 	};	// PointTreeItem
+	*/
+
+	template <typename T, typename X = void, typename Y = void, typename Z = void>
+	struct AdapterSelector
+	{
+		using Type = T;
+	};
+
+	template <typename T, typename Z>
+	struct AdapterSelector<T,	std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
+								std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>, Z>
+	{
+		using Type = XYAdapter<T>;
+	};
+
+	template <typename T>
+	struct AdapterSelector<T,	std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
+								std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>,
+								std::enable_if_t<std::is_arithmetic<decltype(T::z)>::value>>
+	{
+		using Type = XYZAdapter<T>;
+	};
+
+	typedef typename AdapterSelector<PointT>::Type PointTreeItem;
 
 	//bool expandCluster(std::size_t pointIndex);
 	bool expandCluster(const PointTreeItem &item);
