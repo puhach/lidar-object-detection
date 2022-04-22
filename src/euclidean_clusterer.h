@@ -18,8 +18,8 @@ struct XYAdapter
 	{
 		switch (index)
 		{
-		case 0: return point.x;
-		case 1: return point.y;
+		case 0: return point.get().x;
+		case 1: return point.get().y;
 		default: throw std::out_of_range("Invalid coordinate index.");
 		}
 	}	// operator []
@@ -54,6 +54,7 @@ struct XYZAdapter
 
 
 
+
 template <typename PointT>
 class EuclideanClusterer
 {
@@ -61,42 +62,23 @@ public:
 	
 	typedef std::make_signed_t<std::size_t> ClusterIndex;
 
-	float getDistanceTolerance() const { return distanceTolerance; }
-	void setDistanceTolerance(float distanceTolerance) { this->distanceTolerance = distanceTolerance; }
+	float getDistanceTolerance() const noexcept { return distanceTolerance; }
+	void setDistanceTolerance(float distanceTolerance) noexcept { this->distanceTolerance = distanceTolerance; }
 
-	std::size_t getMinClusterSize() const { return minClusterSize; }
-	void setMinClusterSize(std::size_t minClusterSize) { this->minClusterSize = minClusterSize; }
+	std::size_t getMinClusterSize() const noexcept { return minClusterSize; }
+	void setMinClusterSize(std::size_t minClusterSize) noexcept { this->minClusterSize = minClusterSize; }
 
-	std::size_t getMaxClusterSize() const { return maxClusterSize; }
-	void setMaxClusterSize(std::size_t maxClusterSize) { this->maxClusterSize = maxClusterSize; }
+	std::size_t getMaxClusterSize() const noexcept { return maxClusterSize; }
+	void setMaxClusterSize(std::size_t maxClusterSize) noexcept { this->maxClusterSize = maxClusterSize; }
 
 	///std::vector<ClusterIndex> clusterize(const pcl::PointCloud<PointT>& cloud);
-	//std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(typename pcl::PointCloud<PointT>::ConstPtr cloud);
-	std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(const typename pcl::PointCloud<PointT>::ConstPtr &cloud);
+	///std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(typename pcl::PointCloud<PointT>::ConstPtr cloud);
+	std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(const typename pcl::PointCloud<PointT>::ConstPtr& cloud);
+	//std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(const typename pcl::PointCloud<PointT>::Ptr& cloud);
 
 private:
 
-	/*
-	struct PointTreeItem
-	{
-		// PCL points seem to satisfy this requirement
-		static_assert(std::is_array<decltype(PointT::data)>::value, "The point type must contain the data array.");
-
-		PointTreeItem(std::size_t index, const PointT& point) : index(index), point(std::cref(point)) {}
-
-		//PointTreeItem(std::size_t index, const PointT& point) : index(index), point(point) {}
-		//PointTreeItem(std::size_t index, PointT&& point) : index(index), point(std::move(point)) {}
-		
-		//static constexpr std::size_t dim() noexcept { return sizeof(PointT::data) > 0 ? sizeof(PointT::data) / sizeof(PointT::data[0]) : 0; }
-		static constexpr std::size_t dim() noexcept { return std::extent<decltype(PointT::data)>::value; }
-
-		decltype(auto) operator [] (const std::size_t index) const { return point.get().data[index]; }
-
-		std::size_t index;
-		//PointT point;
-		std::reference_wrapper<const PointT> point;
-	};	// PointTreeItem
-	*/
+	// Depending on the point type, organize them in 3D, 2D or KD space 
 
 	template <typename T, typename X = void, typename Y = void, typename Z = void>
 	struct AdapterSelector
@@ -105,30 +87,29 @@ private:
 	};
 
 	template <typename T, typename Z>
-	struct AdapterSelector<T,	std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
-								std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>, Z>
+	struct AdapterSelector<T, std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
+		std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>, Z>
 	{
 		using Type = XYAdapter<T>;
 	};
 
 	template <typename T>
-	struct AdapterSelector<T,	std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
-								std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>,
-								std::enable_if_t<std::is_arithmetic<decltype(T::z)>::value>>
+	struct AdapterSelector<T, std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
+		std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>,
+		std::enable_if_t<std::is_arithmetic<decltype(T::z)>::value>>
 	{
 		using Type = XYZAdapter<T>;
 	};
 
+
 	typedef typename AdapterSelector<PointT>::Type PointTreeItem;
 
-	//bool expandCluster(std::size_t pointIndex);
 	bool expandCluster(const PointTreeItem &item);
 
 	float distanceTolerance = 0;
 	std::size_t minClusterSize = 0;
 	std::size_t maxClusterSize = 0;
 	typename pcl::PointCloud<PointT>::ConstPtr cloud;
-	//KdTree<PointT> tree;
 	KdTree<PointTreeItem> tree;
 	std::vector<ClusterIndex> clusterAffinity;
 	std::size_t numClusters;
