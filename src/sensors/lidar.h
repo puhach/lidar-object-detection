@@ -1,6 +1,8 @@
 #ifndef LIDAR_H
 #define LIDAR_H
+
 #include "../render/render.h"
+
 #include <ctime>
 #include <chrono>
 
@@ -85,21 +87,17 @@ struct Lidar
 	Lidar(std::vector<Car> setCars, double setGroundSlope)
 		: cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0,0,2.6)
 	{
-		// TODO:: set minDistance to 5 to remove points from roof of ego car
 		minDistance = 5; //0;
 		maxDistance = 50;
 		resoultion = 0.2;
-		// TODO:: set sderr to 0.2 to get more interesting pcd files
 		sderr = 0.2; //0.0;
 		cars = setCars;
 		groundSlope = setGroundSlope;
 
-		// TODO:: increase number of layers to 8 to get higher resoultion pcd
 		int numLayers = 8; //3;
 		// the steepest vertical angle
 		double steepestAngle =  30.0*(-pi/180);
 		double angleRange = 26.0*(pi/180);
-		// TODO:: set to pi/64 to get higher resoultion pcd
 		double horizontalAngleInc = pi / 64; //pi/6;
 
 		double angleIncrement = angleRange/numLayers;

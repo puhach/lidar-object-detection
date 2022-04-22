@@ -1,6 +1,6 @@
-/* \author Aaron Brown */
 // Functions and structs used to render the enviroment
 // such as cars and the highway
+// Author: Aaron Brown 
 
 #include "render.h"
 

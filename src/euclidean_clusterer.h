@@ -1,11 +1,11 @@
 #ifndef EUCLIDEAN_CLUSTERER_H
 #define EUCLIDEAN_CLUSTERER_H
 
-#include <pcl/common/common.h>
-
 #include "kdtree.h"
 
-// TODO: test this adapter
+#include <pcl/common/common.h>
+
+
 // A data adapter for indexing 2D data structures with X, Y fields
 template <typename T>
 struct XYAdapter
@@ -37,7 +37,6 @@ struct XYZAdapter
 	static_assert(std::is_array<decltype(T::data)>::value, "The point type must contain the data array.");
 
 	constexpr XYZAdapter(std::size_t index, const T& point) : index(index), point(std::cref(point)) {}
-	//constexpr XYZAdapter(T&& data) : data(std::move(data)) {}
 
 	static constexpr std::size_t size() noexcept { return 3; }
 
@@ -54,7 +53,7 @@ struct XYZAdapter
 
 
 
-
+// A class which performs Euclidean clustering of points
 template <typename PointT>
 class EuclideanClusterer
 {
@@ -71,10 +70,7 @@ public:
 	std::size_t getMaxClusterSize() const noexcept { return maxClusterSize; }
 	void setMaxClusterSize(std::size_t maxClusterSize) noexcept { this->maxClusterSize = maxClusterSize; }
 
-	///std::vector<ClusterIndex> clusterize(const pcl::PointCloud<PointT>& cloud);
-	///std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(typename pcl::PointCloud<PointT>::ConstPtr cloud);
 	std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(const typename pcl::PointCloud<PointT>::ConstPtr& cloud);
-	//std::vector<typename pcl::PointCloud<PointT>::Ptr> clusterize(const typename pcl::PointCloud<PointT>::Ptr& cloud);
 
 private:
 
@@ -87,16 +83,16 @@ private:
 	};
 
 	template <typename T, typename Z>
-	struct AdapterSelector<T, std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
-		std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>, Z>
+	struct AdapterSelector<T,	std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
+								std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>, Z>
 	{
 		using Type = XYAdapter<T>;
 	};
 
 	template <typename T>
-	struct AdapterSelector<T, std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
-		std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>,
-		std::enable_if_t<std::is_arithmetic<decltype(T::z)>::value>>
+	struct AdapterSelector<T,	std::enable_if_t<std::is_arithmetic<decltype(T::x)>::value>,
+								std::enable_if_t<std::is_arithmetic<decltype(T::y)>::value>,
+								std::enable_if_t<std::is_arithmetic<decltype(T::z)>::value>>
 	{
 		using Type = XYZAdapter<T>;
 	};

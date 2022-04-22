@@ -1,5 +1,6 @@
 #ifndef BOX_H
 #define BOX_H
+
 #include <Eigen/Geometry> 
 
 struct BoxQ
@@ -19,4 +20,5 @@ struct Box
 	float y_max;
 	float z_max;
 };
-#endif
+
+#endif	// BOX_H
