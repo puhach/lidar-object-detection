@@ -25,7 +25,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
 //std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::clusterize(typename pcl::PointCloud<PointT>::ConstPtr cloud)
 {
     this->numClusters = 0;
-    this->cloud = std::move(cloud);
+    this->cloud = cloud; //std::move(cloud);
     //KdTree<PointT> kdTree;
     this->tree.clear();
 
@@ -53,16 +53,26 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
 
 
     assert(clusterAffinity.size() == cloud->size());
-    std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;    // TODO: use numClusters
+    std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters(numClusters);
+    std::generate(clusters.begin(), clusters.end(), []() { return pcl::PointCloud<PointT>::Ptr(new pcl::PointCloud<PointT>); });
     for (std::size_t i = 0; i < this->clusterAffinity.size(); ++i)
     {
         auto clusterIndex = this->clusterAffinity[i];
         assert(clusterIndex >= 0);
-        //auto& cluster = clusterIndex < clusters.size() ? clusters[clusterIndex] : clusters.emplace_back(new pcl::PointCloud<PointT>);
-        if (clusterIndex >= clusters.size())
-            clusters.emplace_back(new pcl::PointCloud<PointT>);
-        clusters.back()->push_back(cloud->at(i));
+        assert(clusterIndex < clusters.size());
+        clusters[clusterIndex]->push_back(cloud->at(i));
     }   // for i
+
+    //std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;    // TODO: use numClusters
+    //for (std::size_t i = 0; i < this->clusterAffinity.size(); ++i)
+    //{
+    //    auto clusterIndex = this->clusterAffinity[i];
+    //    assert(clusterIndex >= 0);
+    //    //auto& cluster = clusterIndex < clusters.size() ? clusters[clusterIndex] : clusters.emplace_back(new pcl::PointCloud<PointT>);
+    //    if (clusterIndex >= clusters.size())
+    //        clusters.emplace_back(new pcl::PointCloud<PointT>);
+    //    clusters.back()->push_back(cloud->at(i));
+    //}   // for i
 
     return clusters;
 }   // clusterize

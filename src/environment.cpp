@@ -109,8 +109,8 @@ void detectObstacles(pcl::visualization::PCLVisualizer::Ptr& viewer,
     {
         renderPointCloud(viewer, clusters[i], std::to_string(i), colors[i % colors.size()]);
         
-        Box boundingBox = pointProcessor.BoundingBox(clusters[i]);
-        renderBox(viewer, boundingBox, i, colors[i % colors.size()], 0.5f);
+        //Box boundingBox = pointProcessor.BoundingBox(clusters[i]);
+        //renderBox(viewer, boundingBox, i, colors[i % colors.size()], 0.5f);
     }
 }   // detectObstacles
 
