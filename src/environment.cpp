@@ -4,77 +4,6 @@
 
 #include <array>
 
-//
-//std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer::Ptr& viewer)
-//{
-//
-//    Car egoCar( Vect3(0,0,0), Vect3(4,2,2), Color(0,1,0), "egoCar");
-//    Car car1( Vect3(15,0,0), Vect3(4,2,2), Color(0,0,1), "car1");
-//    Car car2( Vect3(8,-4,0), Vect3(4,2,2), Color(0,0,1), "car2");	
-//    Car car3( Vect3(-12,4,0), Vect3(4,2,2), Color(0,0,1), "car3");
-//  
-//    std::vector<Car> cars;
-//    cars.push_back(egoCar);
-//    cars.push_back(car1);
-//    cars.push_back(car2);
-//    cars.push_back(car3);
-//
-//    if(renderScene)
-//    {
-//        renderHighway(viewer);
-//        egoCar.render(viewer);
-//        car1.render(viewer);
-//        car2.render(viewer);
-//        car3.render(viewer);
-//    }
-//
-//    return cars;
-//}
-
-//
-//void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
-//{
-//    // ----------------------------------------------------
-//    // -----Open 3D viewer and display simple highway -----
-//    // ----------------------------------------------------
-//    
-//    // RENDER OPTIONS
-//    bool renderScene = false;
-//    std::vector<Car> cars = initHighway(renderScene, viewer);
-//    
-//    // Create lidar sensor 
-//    std::unique_ptr<Lidar> lidar(new Lidar(std::move(cars), 0));
-//    pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = lidar->scan();
-//    //renderRays(viewer, lidar->position, pointCloud);
-//    //renderPointCloud(viewer, pointCloud, "some name", Color(0, 1.0, 0.5));
-//
-//
-//    // Create point processor
-//    PointCloudProcessor<pcl::PointXYZ> pointProcessor;
-//    pcl::PointCloud<pcl::PointXYZ>::Ptr obstacleCloud, roadCloud;
-//    std::tie(obstacleCloud, roadCloud) = pointProcessor.segmentPlane(pointCloud, 100, 0.2);
-//    //std::tie(obstacleCloud, roadCloud) = pointProcessor.SegmentPlane_Custom(pointCloud, 50, 0.2);
-//
-//    //renderPointCloud(viewer, obstacleCloud, "obstacleCloud", Color(1, 0, 0));
-//    //renderPointCloud(viewer, roadCloud, "roadCloud", Color(0, 1, 0));
-//
-//    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clusters = pointProcessor.clusterize(obstacleCloud, 1, 3, 30);
-//    std::vector<Color> colors = { Color(1,0,0), Color(0,1,0), Color(0,1,1) };
-//    for (std::size_t i = 0; i < clusters.size(); ++i)
-//    {
-//        pcl::PointCloud<pcl::PointXYZ>::Ptr cluster = clusters[i];
-//
-//        std::cout << "cluster size " << cluster->size() << std::endl; 
-//        //pointProcessor.numPoints(cluster);
-//        
-//        const Color& color = colors[i % colors.size()];
-//        renderPointCloud(viewer, cluster, boost::str(boost::format("cluster_%d") % i), color);
-//
-//        Box boundingBox = pointProcessor.BoundingBox(cluster);
-//        renderBox(viewer, boundingBox, i, Color(1,1,0));
-//    }
-//}   // simpleHighway
-
 
 void detectObstacles(pcl::visualization::PCLVisualizer::Ptr& viewer, 
     const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, PointCloudProcessor<pcl::PointXYZI> &pointProcessor)
@@ -87,8 +16,6 @@ void detectObstacles(pcl::visualization::PCLVisualizer::Ptr& viewer,
                                                                                     Eigen::Vector4f{ -5,-6,-3, 1 }, 
                                                                                     Eigen::Vector4f{+28,+7,+1, 1});
     
-    //renderPointCloud(viewer, filteredCloud, "inputCloud");
-
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacleCloud(new pcl::PointCloud<pcl::PointXYZI>), roadCloud(new pcl::PointCloud<pcl::PointXYZI>);
     std::tie(obstacleCloud, roadCloud) = pointProcessor.segmentPlane(filteredCloud, 30, 0.3);
 
