@@ -36,20 +36,13 @@ typename pcl::PointCloud<PointT>::Ptr PointCloudProcessor<PointT>::filterCloud(c
     cropBox.setInputCloud(filteredCloud);
     cropBox.filter(*filteredCloud);
 
-    // Extract roof point indices
-    pcl::IndicesPtr roofIndices(new pcl::Indices);
+    // Remove roof points
     pcl::CropBox<PointT> roofBox;
     roofBox.setMin(Eigen::Vector4f{ -2, -2, -1, 1 });
     roofBox.setMax(Eigen::Vector4f{ +3, +2, 1, 1 });
     roofBox.setInputCloud(filteredCloud);
-    roofBox.filter(*roofIndices);
-
-    // Remove roof points 
-    pcl::ExtractIndices<PointT> extractor;
-    extractor.setIndices(roofIndices);
-    extractor.setNegative(true);
-    extractor.setInputCloud(filteredCloud);
-    extractor.filter(*filteredCloud);
+    roofBox.setNegative(true);
+    roofBox.filter(*filteredCloud);
 
     //auto endTime = std::chrono::steady_clock::now();
     //auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
