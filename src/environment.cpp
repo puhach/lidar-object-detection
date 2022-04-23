@@ -66,11 +66,10 @@ int main (int argc, char** argv)
     std::cout << "starting enviroment" << std::endl;
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-    CameraAngle setAngle = FPS; //Side; //XY;
+    CameraAngle setAngle = FPS; 
     initCamera(setAngle, viewer);
 
     PointCloudProcessor<pcl::PointXYZI> pointProcessor;
-    //std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../src/sensors/data/pcd/data_1");
     std::vector<boost::filesystem::path> paths = pointProcessor.streamPcd("../data/pcd/data_1");
     std::vector<boost::filesystem::path>::const_iterator it = paths.cbegin();
 
