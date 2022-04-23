@@ -59,7 +59,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 {
     
     // A helper function for sampling n random points from the cloud
-    auto sample = [](const pcl::PointCloud<PointT>::Ptr& cloud, std::size_t n)
+    auto sample = [](const typename pcl::PointCloud<PointT>::Ptr& cloud, std::size_t n)
     {
         typename pcl::PointCloud<PointT>::Ptr sampledCloud(new pcl::PointCloud<PointT>());
         std::unordered_set<int> sampledIndices;
@@ -193,7 +193,7 @@ inline std::vector<typename pcl::PointCloud<PointT>::Ptr> PointCloudProcessor<Po
         [&cloud](const pcl::PointIndices& pointIndices)
         {
             typename pcl::PointCloud<PointT>::Ptr cluster(new pcl::PointCloud<PointT>);
-            for (pcl::index_t pointIndex : pointIndices.indices)
+            for (auto pointIndex : pointIndices.indices)
             {
                 cluster->push_back(cloud->at(pointIndex));
             }

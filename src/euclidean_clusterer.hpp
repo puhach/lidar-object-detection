@@ -48,7 +48,11 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> EuclideanClusterer<PointT>::c
     // Group points by their cluster indices
     assert(clusterAffinity.size() == cloud->size());
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters(numClusters);
-    std::generate(clusters.begin(), clusters.end(), []() { return pcl::PointCloud<PointT>::Ptr(new pcl::PointCloud<PointT>); });
+    std::generate(clusters.begin(), clusters.end(), []() 
+        { 
+            return typename pcl::PointCloud<PointT>::Ptr(new pcl::PointCloud<PointT>); 
+        });
+
     for (std::size_t i = 0; i < this->clusterAffinity.size(); ++i)
     {
         auto clusterIndex = this->clusterAffinity[i];
