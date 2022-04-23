@@ -95,7 +95,7 @@ void detectObstacles(pcl::visualization::PCLVisualizer::Ptr& viewer,
     renderPointCloud(viewer, roadCloud, "road", Color(0,1,0));
     //renderPointCloud(viewer, obstacleCloud, "obst", Color(1, 0, 0));
 
-    const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> &clusters = pointProcessor.clusterize(obstacleCloud, 0.6, 3, 3000);
+    const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> &clusters = pointProcessor.clusterize(obstacleCloud, 0.6, 13, 3000);
 
     std::array<Color, 5> colors { Color(1,0,0), Color(1,1,0), Color(0,1,1), Color(1,0,1), Color(0,0,1) };
     for (std::size_t i = 0; i < clusters.size(); ++i)
