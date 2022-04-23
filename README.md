@@ -4,10 +4,11 @@ This project implements filtering, segmentation, and clustering of real point cl
 
 ## Requirements
 
+* CMake 3.1
 * C++14 compiler
 * PCL 1.7 or newer
 
-Tested with GCC 5.5 + PCL 1.7.2 and MSVC 16.11.6 + PCL 1.12.
+Tested with CMake 3.13.0 + GCC 5.5 + PCL 1.7.2 and CMake 3.20.1 + MSVC 16.11.6 + PCL 1.12.
 
 ## Project structure
 
