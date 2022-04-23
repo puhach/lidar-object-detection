@@ -86,6 +86,7 @@ cmake --build .
 
 Go to the *build* folder and run *lidar_obstacle_detector*. It will start streaming PCD files from *../data/pcd/data_1*, so in case of an error make sure the data files are present at that location.
 
+![Lidar Obstacle Detection](./media/ObstacleDetectionFPS.gif)
 
 ## Credits
 
